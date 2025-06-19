@@ -29,10 +29,27 @@ const klaviyoInstallations = {}
 //////////////////////////////////////////// Wix oAuth /////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//app.get('/oauth/wix/authorize', (req, res) => {
+//  const token = req.query.token
+//  const authUrl = `${AUTH_URL}?appId=${CLIENT_ID}&token=${token}&redirectUrl=${encodeURIComponent(REDIRECT_URI)}`;
+////  if (token) {
+////      authUrl += `&token=${token}`;
+////    }
+//  console.log(`authUrl:${authUrl}`);
+////  res.send(`<a href="${authUrl}">Install on Wix</a>`);
+//  res.redirect(authUrl)
+//});
+
 app.get('/oauth/wix/authorize', (req, res) => {
-  const authUrl = `${AUTH_URL}?appId=${CLIENT_ID}&redirectUrl=${encodeURIComponent(REDIRECT_URI)}`;
-  console.log(`authUrl:${authUrl}`);
-  res.send(`<a href="${authUrl}">Install on Wix</a>`);
+  const token = req.query.token;
+
+  let authUrl = `${AUTH_URL}?appId=${CLIENT_ID}&redirectUrl=${encodeURIComponent(REDIRECT_URI)}&token=${token}`;
+//  if (token) {
+//    authUrl += `&token=${encodeURIComponent(token)}`;
+//  }
+
+  console.log(`authUrl: ${authUrl}`);
+  res.redirect(authUrl);
 });
 
 app.get('/oauth/wix/callback', async (req, res) => {
@@ -119,13 +136,16 @@ function getKlaviyoAuthorizationHeader() {
 
 
 app.get('/oauth/klaviyo/authorize', (req, res) => {
-  const authUrl = `${KLAVIYO_AUTH_URL}?response_type=code&client_id=${KLAVIYO_CLIENT_ID}&redirect_uri=${KLAVIYO_REDIRECT_URI}&scope=accounts:read&state=state&code_challenge_method=S256&code_challenge=${pcke.codeChallenge}`
+  const wixInstanceId = req.query.instanceId
+  const authUrl = `${KLAVIYO_AUTH_URL}?response_type=code&client_id=${KLAVIYO_CLIENT_ID}&redirect_uri=${encodeURIComponent(KLAVIYO_REDIRECT_URI)}&scope=accounts:read&state=${wixInstanceId}&code_challenge_method=S256&code_challenge=${pcke.codeChallenge}`
   console.log(`authUrl:${authUrl}`);
   res.send(`<a href="${authUrl}">Install on Klaviyo</a>`);
 });
 
 app.get('/oauth/klaviyo/callback', async (req, res) => {
   const code = req.query.code;
+  const wixInstanceId = req.query.state;
+
   if (!code) return res.status(400).send('Missing code');
 
   const klaviyoAuthorizationHeader = getKlaviyoAuthorizationHeader()
@@ -144,7 +164,7 @@ app.get('/oauth/klaviyo/callback', async (req, res) => {
     });
 
     // Save the access token for the installed user
-    klaviyoInstallations["instanceId"] = {
+    klaviyoInstallations[wixInstanceId] = {
         access_token:  response.data.access_token,
         refresh_token: response.data.refresh_token,
         expires_at:    Date.now() + (response.data.expires_in * 1000)
