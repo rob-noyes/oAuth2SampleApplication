@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const port = 3000;
@@ -15,56 +16,39 @@ const {
   CLIENT_SECRET,
   REDIRECT_URI,
   AUTH_URL,
-  TOKEN_URL,
-  KLAVIYO_CLIENT_ID,
-  KLAVIYO_CLIENT_SECRET,
-  KLAVIYO_REDIRECT_URI,
-  KLAVIYO_AUTH_URL,
-  KLAVIYO_TOKEN_URL
+  TOKEN_URL
 } = process.env;
-const wixInstallations = {};
-const klaviyoInstallations = {}
+const riseInstallations = {};
+const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3gRdP/ytsjzz/C9ZDQmH
+yeCJVeobG3Y7GS1MgFzNK780VG/q4z1JuAEHvdFKd9eTIHqLpe15M3DYFJAxNxfB
+fpLJ3rl+pNEdzP46orTMsozUXuRGmU4Pnj71GMIDlZn80rjEE01WTKe/n9ehO3f0
+mP0XZ0+veFhbWxBhmzcy9NXnaViEKEeFcgOImcu45vrvpiI+l750OojDWRGIuxyN
+Gi20lCcpxgGR11SQqmsxQWO9g3iApqMCxd/fEdMO7yGajZmG3aKBkHf7M24xwevH
+Xxizig2MBJN/rbjLK1MATNu2weKNkhxtCA4FUK3piobl5k9N25LgSSWhYT6gIsaZ
+VQIDAQAB
+-----END PUBLIC KEY-----`;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////// Wix oAuth /////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//app.get('/oauth/wix/authorize', (req, res) => {
-//  const token = req.query.token
-//  const authUrl = `${AUTH_URL}?appId=${CLIENT_ID}&token=${token}&redirectUrl=${encodeURIComponent(REDIRECT_URI)}`;
-////  if (token) {
-////      authUrl += `&token=${token}`;
-////    }
-//  console.log(`authUrl:${authUrl}`);
-////  res.send(`<a href="${authUrl}">Install on Wix</a>`);
-//  res.redirect(authUrl)
-//});
-
-app.get('/oauth/wix/authorize', (req, res) => {
+app.get('/oauth/rise/authorize', (req, res) => {
   const token = req.query.token;
 
   let authUrl = `${AUTH_URL}?appId=${CLIENT_ID}&redirectUrl=${encodeURIComponent(REDIRECT_URI)}&token=${token}`;
-//  if (token) {
-//    authUrl += `&token=${encodeURIComponent(token)}`;
-//  }
-
   console.log(`authUrl: ${authUrl}`);
   res.redirect(authUrl);
 });
 
-app.get('/oauth/wix/callback', async (req, res) => {
+app.get('/oauth/rise/callback', async (req, res) => {
   const code = req.query.code;
   const instanceId = req.query.instanceId;
   if (!code) return res.status(400).send('Missing code');
 
-  // get the access token from Wix
+  // get the access token from Rise
   try {
     const response = await axios.post(TOKEN_URL, {
-      grant_type: 'authorization_code',
+      grant_type: 'client_credentials',
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET,
-      code,
-      redirect_uri: REDIRECT_URI
+      instance_id: instanceId,
     }, {
       headers: {
         'Content-Type': 'application/json'
@@ -72,114 +56,52 @@ app.get('/oauth/wix/callback', async (req, res) => {
     });
 
     // Save the access token for the installed user
-    wixInstallations[instanceId] = {
+    riseInstallations[instanceId] = {
         access_token:  response.data.access_token,
         refresh_token: response.data.refresh_token,
         expires_at:    Date.now() + (response.data.expires_in * 1000)
     };
-    console.log('wixInstallations:', wixInstallations);
+    console.log('riseInstallations:', riseInstallations);
 
-    // Redirect the user to the next step (Klaviyo auth flow)
-    const redirectTo = `${BASE_URL}/oauth/klaviyo/authorize?instanceId=${instanceId}`;
-    return res.redirect(redirectTo);
-
+    //This is where you can redirect the user to your log-in page.
+    res.json(riseInstallations);
   } catch (error) {
     console.error(error.response?.data || error.message);
     return res.status(500).send('Token exchange failed');
   }
 });
 
+app.post('/rise/webhooks', express.text(), (req, res) => {
+  let event;
+  let eventData;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////// KLAVIYO oAuth /////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ try {
+    console.log(req.body)
+    console.log(PUBLIC_KEY)
+    const rawPayload = jwt.verify(req.body, PUBLIC_KEY);
+    event = JSON.parse(rawPayload.data);
+    eventData = JSON.parse(event.data);
+    console.log(`Webhook event received with data:`, event);
 
-let crypto;
-
-// use node:crypto if your version of node supports it
-try {
-        crypto = require('node:crypto');
-} catch (error) {
-        crypto = require('crypto');
-}
-
-function generateCodes() {
-        const base64URLEncode = (str) => {
-            return str.toString('base64')
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=/g, '');
-        }
-        const verifier = base64URLEncode(crypto.randomBytes(32));
-
-        const sha256 = (buffer) => {
-            return crypto.createHash('sha256').update(buffer).digest();
-        }
-        const challenge = base64URLEncode(sha256(verifier));
-
-        return {
-            codeVerifier: verifier,
-            codeChallenge: challenge
-        }
-}
-const pcke = generateCodes()
-
-function getKlaviyoAuthorizationHeader() {
-    // Step 1: Combine client_id and client_secret with a colon
-    const credentials = `${KLAVIYO_CLIENT_ID}:${KLAVIYO_CLIENT_SECRET}`;
-    // Step 2: Base64 encode the string
-    const base64Credentials = Buffer.from(credentials).toString('base64');
-    // Step 3: Create the Authorization header
-    const authHeader = `Basic ${base64Credentials}`;
-    return authHeader
-}
-
-
-app.get('/oauth/klaviyo/authorize', (req, res) => {
-  const wixInstanceId = req.query.instanceId
-  const authUrl = `${KLAVIYO_AUTH_URL}?response_type=code&client_id=${KLAVIYO_CLIENT_ID}&redirect_uri=${encodeURIComponent(KLAVIYO_REDIRECT_URI)}&scope=accounts:read&state=${wixInstanceId}&code_challenge_method=S256&code_challenge=${pcke.codeChallenge}`
-  console.log(`authUrl:${authUrl}`);
-  res.send(`<a href="${authUrl}">Install on Klaviyo</a>`);
-});
-
-app.get('/oauth/klaviyo/callback', async (req, res) => {
-  const code = req.query.code;
-  const wixInstanceId = req.query.state;
-
-  if (!code) return res.status(400).send('Missing code');
-
-  const klaviyoAuthorizationHeader = getKlaviyoAuthorizationHeader()
-  // get the access token from Wix
-  try {
-    const response = await axios.post(KLAVIYO_TOKEN_URL, {
-      grant_type: 'authorization_code',
-      code_verifier: pcke.codeVerifier,
-      code,
-      redirect_uri: KLAVIYO_REDIRECT_URI
-    }, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': klaviyoAuthorizationHeader
-      }
-    });
-
-    // Save the access token for the installed user
-    klaviyoInstallations[wixInstanceId] = {
-        access_token:  response.data.access_token,
-        refresh_token: response.data.refresh_token,
-        expires_at:    Date.now() + (response.data.expires_in * 1000)
-    };
-    console.log('klaviyo installations:', klaviyoInstallations);
-    res.json(response.data); // shows access_token, etc.
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).send('Token exchange failed');
+  } catch (err) {
+    console.error(err);
+    res.status(400).send(`Webhook error: ${err.message}`);
+    return;
   }
 
-  // this is where you initiate external platform installation or log in.
+  switch (event.eventType) {
+    case "AppRemoved":
+      console.log(`AppRemoved event received with data:`, eventData);
+      console.log(`App instance ID:`, event.instanceId);
+      //Remove the installation details. from RiseInstallations
+      break;
+    default:
+      console.log(`Received unknown event type: ${event.eventType}`);
+      break;
+  }
 
+  res.status(200).send();
 });
-
 
 app.listen(port, () => {
   console.log(`OAuth app running at http://localhost:${port}`);
