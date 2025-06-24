@@ -104,11 +104,48 @@ app.post('/rise/webhooks', express.text(), (req, res) => {
 
 ## 📚 API Examples
 
-This example shows how to make authenticated calls to Rise.ai's API endpoints. Once you have valid access tokens, you can call any Rise.ai API endpoint. Common examples include:
+This example implements real Rise.ai API endpoints that you can test immediately. Once you complete the OAuth flow, you can try these endpoints:
 
-- 🔍 **GET /api/example/customers** - Fetch customer data
-- 📊 **GET /api/example/analytics** - Get analytics data
-- 🎁 **POST /api/example/rewards** - Create rewards
+### **Account & Configuration**
+- 🏢 **GET /api/example/account/:instanceId** - Get account information
+- 🏪 **GET /api/example/sales-channels/:instanceId** - List sales channels
+
+### **Gift Cards**
+- 🎁 **POST /api/example/gift-cards/:instanceId** - Create gift cards
+- 🔍 **POST /api/example/gift-cards/search/:instanceId** - Search gift cards by email
+
+### **Customer Wallets**
+- 👤 **POST /api/example/wallets/:instanceId** - Create customer loyalty wallets
+- 📊 **POST /api/example/wallets/query/:instanceId** - Query customer wallets
+
+### **Workflows & Events**
+- ⚡ **POST /api/example/workflows/events/:instanceId** - Report workflow events
+
+### **Quick Test Examples**
+
+```bash
+# Replace {instanceId} with your actual instance ID
+
+# Get account information
+curl http://localhost:3000/api/example/account/{instanceId}
+
+# Create a gift card
+curl -X POST http://localhost:3000/api/example/gift-cards/{instanceId} \
+  -H "Content-Type: application/json" \
+  -d '{"code": "WELCOME2024", "initialValue": "25.00", "currency": "USD"}'
+
+# Create customer wallet
+curl -X POST http://localhost:3000/api/example/wallets/{instanceId} \
+  -H "Content-Type: application/json" \
+  -d '{"firstName": "Jane", "lastName": "Smith", "email": "jane@example.com", "initialValue": "50.00"}'
+
+# Report a workflow event
+curl -X POST http://localhost:3000/api/example/workflows/events/{instanceId} \
+  -H "Content-Type: application/json" \
+  -d '{"triggerKey": "customer_signup", "payload": {"customerId": "new_customer_123"}}'
+```
+
+**💡 Tip**: After completing OAuth, visit the installation complete page for an interactive testing interface!
 
 ## 🛡️ Security Best Practices
 
