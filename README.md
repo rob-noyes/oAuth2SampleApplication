@@ -6,7 +6,7 @@ This is a complete example application demonstrating how to integrate with the R
 
 - How to implement Rise.ai OAuth 2.0 flow
 - How to handle authorization callbacks
-- How to manage access tokens and refresh tokens
+- How to manage access tokens and token renewal
 - How to process Rise.ai webhooks
 - How to make authenticated API calls to Rise.ai
 
@@ -116,7 +116,7 @@ This example shows how to make authenticated calls to Rise.ai's API endpoints. O
 2. **Token Storage**: Use secure storage for production (database, encrypted)
 3. **Webhook Verification**: Always verify webhook signatures
 4. **HTTPS**: Use HTTPS in production
-5. **Token Refresh**: Implement token refresh logic
+5. **Token Renewal**: Implement token renewal logic
 
 ## 🚨 Common Issues & Solutions
 
@@ -124,7 +124,7 @@ This example shows how to make authenticated calls to Rise.ai's API endpoints. O
 **Solution**: Ensure your redirect URI exactly matches what's registered in Rise.ai developer console.
 
 ### Issue: "Token expired"
-**Solution**: Implement token refresh logic using the refresh token.
+**Solution**: Implement token renewal by calling the createToken API again.
 
 ### Issue: "Webhook verification failed"
 **Solution**: Check that you're using the correct public key for JWT verification.

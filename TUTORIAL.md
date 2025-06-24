@@ -28,7 +28,7 @@ sequenceDiagram
     User->>RiseAuth: Authorizes your app
     RiseAuth->>YourApp: Redirect with auth code
     YourApp->>RiseAuth: Exchange code for tokens
-    RiseAuth->>YourApp: Return access & refresh tokens
+    RiseAuth->>YourApp: Return access token & expires_in
     YourApp->>RiseAPI: Make authenticated requests
 ```
 
@@ -123,7 +123,7 @@ app.get('/oauth/rise/callback', async (req, res) => {
     // Store tokens securely
     const tokenData = {
       access_token: response.data.access_token,
-      refresh_token: response.data.refresh_token,
+  
       expires_at: Date.now() + (response.data.expires_in * 1000),
       created_at: new Date().toISOString()
     };
@@ -184,7 +184,7 @@ async function getTokens(instanceId) {
 }
 ```
 
-### Token Refresh Logic
+### Token Renewal Logic
 
 ```javascript
 async function getValidAccessToken(instanceId) {
@@ -291,7 +291,7 @@ async function fetchCustomers(instanceId) {
     return response.data;
   } catch (error) {
     if (error.response?.status === 401) {
-      // Token might be invalid, try refreshing
+      // Token might be invalid, try renewing
       throw new Error('Authentication failed');
     }
     throw error;
@@ -397,7 +397,7 @@ const logger = winston.createLogger({
 
 // Log important events
 logger.info('OAuth flow started', { instanceId, timestamp: new Date() });
-logger.error('Token refresh failed', { instanceId, error: error.message });
+logger.error('Token renewal failed', { instanceId, error: error.message });
 ```
 
 ## Testing Your Integration
@@ -447,7 +447,7 @@ describe('OAuth Flow', () => {
 
 1. **Not Validating Webhooks**: Always verify JWT signatures
 2. **Storing Tokens Insecurely**: Use encryption in production
-3. **Ignoring Token Expiry**: Implement refresh logic
+3. **Ignoring Token Expiry**: Implement renewal logic
 4. **Poor Error Handling**: Provide meaningful error messages
 5. **Not Handling Edge Cases**: Test with expired tokens, invalid IDs, etc.
 6. **Blocking Webhook Processing**: Keep webhook handlers fast

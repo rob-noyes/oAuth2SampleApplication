@@ -120,7 +120,7 @@ app.get('/oauth/rise/authorize', (req, res) => {
 
 /**
  * Handles the OAuth callback from Rise.ai after user authorization
- * Exchanges the authorization code for access and refresh tokens
+ * Exchanges the authorization code for access token
  * 
  * URL: GET /oauth/rise/callback?code=AUTH_CODE&instanceId=INSTANCE_ID
  */
@@ -162,7 +162,6 @@ app.get('/oauth/rise/callback', async (req, res) => {
     // ⚠️  IMPORTANT: In production, encrypt tokens and use secure storage
     riseInstallations[instanceId] = {
       access_token: response.data.access_token,
-      refresh_token: response.data.refresh_token,
       expires_at: Date.now() + (response.data.expires_in * 1000),
       created_at: new Date().toISOString()
     };
@@ -243,6 +242,7 @@ app.post('/rise/webhooks', express.text(), (req, res) => {
  */
 function handleAppRemoval(instanceId, eventData) {
   console.log(`🗑️  App removed for instance: ${instanceId}`);
+  console.log(`eventData: ${eventData}`)
   
   // Clean up stored installation data
   if (riseInstallations[instanceId]) {
@@ -260,6 +260,8 @@ function handleAppRemoval(instanceId, eventData) {
  */
 function handleAppInstallation(instanceId, eventData) {
   console.log(`🎉 App installed for instance: ${instanceId}`);
+  console.log(eventData)
+
   // Add any post-installation logic here
 }
 
@@ -546,7 +548,7 @@ function generateGiftCardCode() {
   return result;
 }
 
-// Helper function to get a valid access token (with refresh if needed)
+// Helper function to get a valid access token (with re-authentication if needed)
 async function getValidAccessToken(instanceId) {
   const installation = riseInstallations[instanceId];
   if (!installation) {
@@ -555,14 +557,14 @@ async function getValidAccessToken(instanceId) {
 
   // Check if token is expired
   if (installation.expires_at < Date.now()) {
-    console.log('🔄 Access token expired, attempting refresh...');
+    console.log('🔄 Access token expired, requesting new token...');
     
     try {
-      // Refresh the token using the client_credentials flow
+      // Get a new token using the client_credentials flow
       const response = await axios.post(`${RISE_PLATFORM_URL}/oauth2/token`, {
         grant_type: 'client_credentials',
-        client_id: installation.client_id || CLIENT_ID,
-        client_secret: installation.client_secret || CLIENT_SECRET,
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
         instance_id: instanceId
       }, {
         headers: {
@@ -575,15 +577,15 @@ async function getValidAccessToken(instanceId) {
         ...installation,
         access_token: response.data.access_token,
         expires_at: Date.now() + (response.data.expires_in * 1000),
-        refreshed_at: Date.now()
+        renewed_at: Date.now()
       };
 
-      console.log('✅ Access token refreshed successfully');
+      console.log('✅ Access token renewed successfully');
       return response.data.access_token;
 
-    } catch (refreshError) {
-      console.error('❌ Failed to refresh access token:', refreshError.response?.data || refreshError.message);
-      throw new Error('Failed to refresh access token');
+    } catch (renewError) {
+      console.error('❌ Failed to renew access token:', renewError.response?.data || renewError.message);
+      throw new Error('Failed to renew access token');
     }
   }
 
@@ -601,10 +603,10 @@ function handleApiError(res, error, operation) {
     });
   }
   
-  if (error.message === 'Failed to refresh access token') {
+  if (error.message === 'Failed to renew access token') {
     return res.status(401).json({
       error: 'token_expired',
-      message: 'Access token has expired and refresh failed'
+      message: 'Access token has expired and renewal failed'
     });
   }
   
@@ -619,47 +621,7 @@ function handleApiError(res, error, operation) {
 // UTILITY FUNCTIONS
 // =============================================================================
 
-/**
- * Get valid access token for an instance (with refresh if needed)
- * This is an example of how you might implement token refresh logic
- */
-async function getValidAccessToken(instanceId) {
-  const installation = riseInstallations[instanceId];
-  
-  if (!installation) {
-    throw new Error('Installation not found');
-  }
 
-  // If token is still valid, return it
-  if (installation.expires_at > Date.now() + 60000) { // 1 minute buffer
-    return installation.access_token;
-  }
-
-  // Token is expired or about to expire, refresh it
-  try {
-    const response = await axios.post(TOKEN_URL, {
-      grant_type: 'refresh_token',
-      refresh_token: installation.refresh_token,
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-    });
-
-    // Update stored tokens
-    riseInstallations[instanceId] = {
-      ...installation,
-      access_token: response.data.access_token,
-      refresh_token: response.data.refresh_token || installation.refresh_token,
-      expires_at: Date.now() + (response.data.expires_in * 1000)
-    };
-
-    console.log(`🔄 Refreshed access token for instance: ${instanceId}`);
-    return response.data.access_token;
-
-  } catch (error) {
-    console.error('❌ Token refresh failed:', error.response?.data || error.message);
-    throw new Error('Failed to refresh access token');
-  }
-}
 
 // =============================================================================
 // ERROR HANDLING & 404

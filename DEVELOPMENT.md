@@ -262,9 +262,9 @@ app.get('/api/customers/:instanceId', requireAuth, async (req, res) => {
 });
 ```
 
-### 4. Implement Token Refresh
+### 4. Implement Token Renewal
 
-Add automatic token refresh:
+Add automatic token renewal:
 
 ```javascript
 // services/auth.js
@@ -276,38 +276,37 @@ class AuthService {
       throw new Error('Installation not found');
     }
 
-    // If token expires within 5 minutes, refresh it
+    // If token expires within 5 minutes, renew it
     if (installation.expires_at < Date.now() + 300000) {
-      installation = await this.refreshTokens(instanceId, installation);
+      installation = await this.renewTokens(instanceId, installation);
     }
 
     return installation.access_token;
   }
 
-  async refreshTokens(instanceId, installation) {
+  async renewTokens(instanceId, installation) {
     try {
       const response = await axios.post(TOKEN_URL, {
-        grant_type: 'refresh_token',
-        refresh_token: installation.refresh_token,
+        grant_type: 'client_credentials',
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
+        instance_id: instanceId
       });
 
       const newInstallation = {
         ...installation,
         access_token: response.data.access_token,
-        refresh_token: response.data.refresh_token || installation.refresh_token,
         expires_at: Date.now() + (response.data.expires_in * 1000)
       };
 
       await storeTokens(instanceId, newInstallation);
-      console.log(`Refreshed tokens for instance: ${instanceId}`);
+      console.log(`Renewed tokens for instance: ${instanceId}`);
       
       return newInstallation;
 
     } catch (error) {
-      console.error('Token refresh failed:', error.response?.data);
-      throw new Error('Failed to refresh access token');
+      console.error('Token renewal failed:', error.response?.data);
+      throw new Error('Failed to renew access token');
     }
   }
 }
@@ -383,7 +382,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Usage throughout your app
 logger.info('OAuth flow started', { instanceId, timestamp: new Date() });
-logger.error('Token refresh failed', { instanceId, error: error.message });
+logger.error('Token renewal failed', { instanceId, error: error.message });
 ```
 
 ## Production Deployment
@@ -457,7 +456,7 @@ app.get('/health', (req, res) => {
    - Verify instanceId is correct
 
 4. **API calls failing**
-   - Check token expiry and refresh logic
+   - Check token expiry and renewal logic
    - Verify API endpoint URLs
    - Check request headers and authentication
 
