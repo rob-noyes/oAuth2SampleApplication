@@ -405,7 +405,7 @@ logger.error('Token renewal failed', { instanceId, error: error.message });
 ### Manual Testing
 
 1. Start your server: `npm start`
-2. Visit: `http://localhost:3000/oauth/rise/authorize?token=TEST_TOKEN`
+2. Visit: `https://platform.rise.ai/protected/app-installer/install?appId=${CLIENT_ID}`
 3. Complete the OAuth flow
 4. Test webhook endpoints with tools like ngrok
 

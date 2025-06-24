@@ -63,7 +63,7 @@ PORT=3000
 npm start
 ```
 
-Visit `http://localhost:3000/oauth/rise/authorize?token=YOUR_INSTALL_TOKEN` to begin the OAuth flow.
+Visit `https://platform.rise.ai/protected/app-installer/install?appId=${CLIENT_ID}` to begin the OAuth flow.
 
 ## 🔄 OAuth Flow Explained
 

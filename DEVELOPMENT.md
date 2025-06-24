@@ -52,8 +52,8 @@ npm start
 ### Manual Testing Flow
 
 1. **Start the OAuth Flow**
-   - Visit: `http://localhost:3000/oauth/rise/authorize?token=TEST_TOKEN`
-   - Replace `TEST_TOKEN` with actual installation token from Rise.ai
+   - Visit: `https://platform.rise.ai/protected/app-installer/install?appId=${CLIENT_ID}`
+   - Replace `${CLIENT_ID}` with your actual Rise.ai client ID
 
 2. **Complete Authorization**
    - You'll be redirected to Rise.ai
