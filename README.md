@@ -13,7 +13,7 @@ This is a complete example application demonstrating how to integrate with the R
 ## 📋 Prerequisites
 
 - Node.js (v14 or higher)
-- A Rise.ai developer account
+- Rise.ai app credentials (obtained from Rise.ai partnership team)
 - Basic knowledge of Express.js
 
 ## 🚀 Quick Start
@@ -26,7 +26,20 @@ cd hello-world-auth
 npm install
 ```
 
-### 2. Configure Environment Variables
+### 2. Get Rise.ai App Credentials
+
+**Important**: Rise.ai doesn't have a public developer console. To get your app credentials:
+
+1. **Contact Rise.ai Partnership Team**: Email `marina@rise-ai.com`
+2. **Provide Required Information**:
+   - **App URL**: The URL where users will be redirected when they click "Install" in their Rise dashboard
+   - **Redirect URL**: Your OAuth callback URL (e.g., `https://your-domain.com/oauth/rise/callback`)
+3. **Receive Credentials**: The partnership team will provide:
+   - `CLIENT_ID` (your app ID)
+   - `CLIENT_SECRET` (your app secret)
+   - `CLIENT_PUBLIC_KEY` (for webhook verification)
+
+### 3. Configure Environment Variables
 
 Create a `.env` file in the root directory:
 
@@ -57,7 +70,7 @@ VQIDAQAB
 PORT=3000
 ```
 
-### 3. Run the Application
+### 4. Run the Application
 
 ```bash
 npm start

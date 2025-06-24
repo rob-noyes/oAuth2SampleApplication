@@ -695,5 +695,4 @@ app.listen(port, () => {
   console.log(`📡 Webhook endpoint: ${SERVER_BASE_URL}:${port}/rise/webhooks`);
   console.log(`\n📚 To start OAuth flow, visit`);
   console.log(`   ${RISE_PLATFORM_URL}/protected/app-installer/install?appId=${CLIENT_ID}`);
-
 });

@@ -7,7 +7,7 @@ This guide helps you set up and customize the Rise.ai OAuth integration example 
 ### 1. Prerequisites
 
 - Node.js 14+ installed
-- Rise.ai developer account
+- Rise.ai app credentials (obtained from partnership team)
 - Basic understanding of OAuth 2.0
 
 ### 2. Initial Setup
@@ -24,7 +24,17 @@ npm install
 cp .env.example .env
 ```
 
-### 3. Configure Environment
+### 3. Get Rise.ai App Credentials
+
+**Important**: Rise.ai doesn't have a public developer console. To get your app credentials:
+
+1. **Contact Rise.ai Partnership Team**: Email `marina@rise-ai.com`
+2. **Provide Required Information**:
+   - **App URL**: The URL where users will be redirected when they click "Install" in their Rise dashboard
+   - **Redirect URL**: Your OAuth callback URL (e.g., `https://your-domain.com/oauth/rise/callback`)
+3. **Receive Credentials**: The partnership team will provide your `CLIENT_ID`, `CLIENT_SECRET`, and `CLIENT_PUBLIC_KEY`
+
+### 4. Configure Environment
 
 Edit `.env` with your Rise.ai app credentials:
 
@@ -37,7 +47,7 @@ Edit `.env` with your Rise.ai app credentials:
   PORT=3000
 ```
 
-### 4. Start Development Server
+### 5. Start Development Server
 
 ```bash
 # Start with auto-reload
@@ -110,8 +120,10 @@ npm install -g ngrok
 ngrok http 3000
 ```
 
-Then update your Rise.ai app settings to use the ngrok URL for webhooks:
-- Webhook URL: `https://your-ngrok-url.ngrok.io/rise/webhooks`
+Then **contact the Rise.ai partnership team** (`marina@rise-ai.com`) to update your app configuration with the ngrok URLs:
+- **App URL**: `https://your-ngrok-url.ngrok.io/oauth/rise/authorize`
+- **Redirect URL**: `https://your-ngrok-url.ngrok.io/oauth/rise/callback`
+- **Webhook URL**: `https://your-ngrok-url.ngrok.io/rise/webhooks`
 
 ## Customizing for Your Application
 

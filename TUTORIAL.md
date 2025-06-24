@@ -36,12 +36,16 @@ sequenceDiagram
 
 ### 1. Get Your Credentials
 
-First, register your app in the Rise.ai developer dashboard:
+**Important**: Rise.ai doesn't have a public developer console. To get your app credentials:
 
-1. Go to [Rise.ai Developer Console](https://developer.rise.ai)
-2. Create a new application
-3. Note down your `CLIENT_ID` and `CLIENT_SECRET`
-4. Set your redirect URI to `http://localhost:3000/oauth/rise/callback`
+1. **Contact Rise.ai Partnership Team**: Email `marina@rise-ai.com`
+2. **Provide Required Information**:
+   - **App URL**: The URL where users will be redirected when they click "Install" in their Rise dashboard (e.g., `https://your-domain.com/oauth/rise/authorize`)
+   - **Redirect URL**: Your OAuth callback URL (e.g., `https://your-domain.com/oauth/rise/callback`)
+3. **Receive Credentials**: The partnership team will provide:
+   - `CLIENT_ID` (your app ID)
+   - `CLIENT_SECRET` (your app secret)  
+   - `CLIENT_PUBLIC_KEY` (for webhook verification)
 
 ### 2. Environment Setup
 
