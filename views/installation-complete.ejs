@@ -1,0 +1,688 @@
+<!-- views/installation-complete.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rise.ai – Installation Completed</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      background: #f9f9fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 140px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      color: #1c1e21;
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      color: #606770;
+      font-size: 16px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .checkmark {
+      font-size: 48px;
+      color: #6c5ce7;
+      margin-bottom: 16px;
+    }
+
+    .info-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .info-section h3 {
+      margin: 0 0 12px 0;
+      color: #1c1e21;
+      font-size: 18px;
+    }
+
+    .info-section p {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+
+    .code-block {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+      margin: 8px 0;
+      word-break: break-all;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    .next-steps {
+      background: #e6f3ff;
+      border-left: 4px solid #3182ce;
+      padding: 16px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .next-steps h3 {
+      margin: 0 0 12px 0;
+      color: #2c5282;
+    }
+
+    .next-steps ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .next-steps li {
+      margin: 8px 0;
+      color: #2d3748;
+    }
+
+    .api-example {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      text-align: left;
+    }
+
+    .button {
+      display: inline-block;
+      background: #6c5ce7;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin: 8px 4px;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #5a4fcf;
+    }
+
+    .button.secondary {
+      background: #718096;
+    }
+
+    .button.secondary:hover {
+      background: #4a5568;
+    }
+
+    .api-test-section {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 16px 0;
+      text-align: left;
+    }
+
+    .api-test-item {
+      margin: 16px 0;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .api-test-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .api-method {
+      background: #48bb78;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .api-method.post {
+      background: #ed8936;
+    }
+
+    .test-button {
+      background: #3182ce;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .test-button:hover {
+      background: #2c5282;
+    }
+
+    .test-button:disabled {
+      background: #a0aec0;
+      cursor: not-allowed;
+    }
+
+    .api-form {
+      margin: 12px 0;
+    }
+
+    .form-group {
+      margin: 8px 0;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .form-group textarea {
+      min-height: 80px;
+      font-family: 'Monaco', 'Menlo', monospace;
+    }
+
+    .api-response {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .response-success {
+      background: #f0fff4;
+      border: 1px solid #9ae6b4;
+      color: #22543d;
+    }
+
+    .response-error {
+      background: #fed7d7;
+      border: 1px solid #fc8181;
+      color: #742a2a;
+    }
+
+    .loading {
+      color: #3182ce;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="checkmark">✅</div>
+    <img src="/images/rise-logo.svg" alt="Rise.ai Logo" class="logo" />
+    <h1>OAuth Integration Successful!</h1>
+    <p>Congratulations! You've successfully completed the Rise.ai OAuth flow.</p>
+
+    <% if (typeof instanceId !== 'undefined') { %>
+    <div class="info-section">
+      <h3>🔧 Integration Details</h3>
+      <p><strong>Instance ID:</strong></p>
+      <div class="code-block"><%= instanceId %></div>
+      <p><strong>Status:</strong> Active and ready for API calls</p>
+      <p><strong>Tokens:</strong> Stored securely and ready to use</p>
+    </div>
+    <% } %>
+
+    <div class="next-steps">
+      <h3>🚀 What's Next?</h3>
+      <ul>
+        <li>Your access tokens are now stored and ready to use</li>
+        <li>You can make authenticated API calls to Rise.ai</li>
+        <li>Webhooks will notify you of important events</li>
+        <li>Check the server console for detailed logs</li>
+      </ul>
+    </div>
+
+    <div class="api-test-section">
+      <h3>📡 Interactive API Testing</h3>
+      <p>Test your integration directly from this page:</p>
+      
+      <!-- View Installations -->
+      <div class="api-test-item">
+        <div class="api-test-header">
+          <div>
+            <span class="api-method">GET</span>
+            <strong>View All Installations</strong>
+          </div>
+          <button class="test-button" onclick="testInstallations()">Test API</button>
+        </div>
+        <div id="installations-response"></div>
+      </div>
+      
+      <% if (typeof instanceId !== 'undefined') { %>
+      <!-- Account Information -->
+      <div class="api-test-item">
+        <div class="api-test-header">
+          <div>
+            <span class="api-method">GET</span>
+            <strong>Get Account Information</strong>
+          </div>
+          <button class="test-button" onclick="testAccount('<%= instanceId %>')">Test API</button>
+        </div>
+        <div id="account-response"></div>
+      </div>
+
+      <!-- Sales Channels -->
+      <div class="api-test-item">
+        <div class="api-test-header">
+          <div>
+            <span class="api-method">GET</span>
+            <strong>List Sales Channels</strong>
+          </div>
+          <button class="test-button" onclick="testSalesChannels('<%= instanceId %>')">Test API</button>
+        </div>
+        <div id="sales-channels-response"></div>
+      </div>
+
+      <!-- Create Gift Card -->
+      <div class="api-test-item">
+        <div class="api-test-header">
+          <div>
+            <span class="api-method post">POST</span>
+            <strong>Create Gift Card</strong>
+          </div>
+          <button class="test-button" onclick="testCreateGiftCard('<%= instanceId %>')">Test API</button>
+        </div>
+        <div class="api-form">
+          <div class="form-group">
+            <label>Gift Card Code:</label>
+            <input type="text" id="gift-card-code" placeholder="GIFT2024" value="GIFT2024">
+          </div>
+          <div class="form-group">
+            <label>Initial Value:</label>
+            <input type="text" id="gift-card-value" placeholder="50.00" value="50.00">
+          </div>
+          <div class="form-group">
+            <label>Currency:</label>
+            <input type="text" id="gift-card-currency" placeholder="USD" value="USD">
+          </div>
+        </div>
+        <div id="create-gift-card-response"></div>
+      </div>
+
+      <!-- Search Gift Cards -->
+      <div class="api-test-item">
+        <div class="api-test-header">
+          <div>
+            <span class="api-method post">POST</span>
+            <strong>Search Gift Cards</strong>
+          </div>
+          <button class="test-button" onclick="testSearchGiftCards('<%= instanceId %>')">Test API</button>
+        </div>
+        <div class="api-form">
+          <div class="form-group">
+            <label>Customer Email (optional):</label>
+            <input type="email" id="search-email" placeholder="customer@example.com">
+          </div>
+        </div>
+        <div id="search-gift-cards-response"></div>
+      </div>
+
+      <!-- Create Wallet -->
+      <div class="api-test-item">
+        <div class="api-test-header">
+          <div>
+            <span class="api-method post">POST</span>
+            <strong>Create Customer Wallet</strong>
+          </div>
+          <button class="test-button" onclick="testCreateWallet('<%= instanceId %>')">Test API</button>
+        </div>
+        <div class="api-form">
+          <div class="form-group">
+            <label>First Name:</label>
+            <input type="text" id="wallet-first-name" placeholder="John" value="John">
+          </div>
+          <div class="form-group">
+            <label>Last Name:</label>
+            <input type="text" id="wallet-last-name" placeholder="Doe" value="Doe">
+          </div>
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="wallet-email" placeholder="john@example.com" value="john@example.com">
+          </div>
+          <div class="form-group">
+            <label>Initial Value:</label>
+            <input type="text" id="wallet-initial-value" placeholder="100.00" value="100.00">
+          </div>
+        </div>
+        <div id="create-wallet-response"></div>
+      </div>
+
+      <!-- Query Wallets -->
+      <div class="api-test-item">
+        <div class="api-test-header">
+          <div>
+            <span class="api-method post">POST</span>
+            <strong>Query Customer Wallets</strong>
+          </div>
+          <button class="test-button" onclick="testQueryWallets('<%= instanceId %>')">Test API</button>
+        </div>
+        <div class="api-form">
+          <div class="form-group">
+            <label>Query JSON (optional filters):</label>
+            <textarea id="wallet-query" placeholder='{"filters": []}'>{}</textarea>
+          </div>
+        </div>
+        <div id="query-wallets-response"></div>
+      </div>
+
+      <!-- Report Workflow Event -->
+      <div class="api-test-item">
+        <div class="api-test-header">
+          <div>
+            <span class="api-method post">POST</span>
+            <strong>Report Workflow Event</strong>
+          </div>
+          <button class="test-button" onclick="testReportEvent('<%= instanceId %>')">Test API</button>
+        </div>
+        <div class="api-form">
+          <div class="form-group">
+            <label>Trigger Key:</label>
+            <input type="text" id="event-trigger-key" placeholder="customer_purchase" value="customer_purchase">
+          </div>
+          <div class="form-group">
+            <label>Payload JSON:</label>
+            <textarea id="event-payload" placeholder='{"customerId": "123", "amount": "50.00"}'>{"customerId": "123", "amount": "50.00"}</textarea>
+          </div>
+        </div>
+        <div id="report-event-response"></div>
+      </div>
+      <% } %>
+    </div>
+
+    <div class="info-section">
+      <h3>📚 Developer Resources</h3>
+      <p>This is an example integration. In your actual application:</p>
+      <ul style="text-align: left; padding-left: 20px;">
+        <li>Store tokens in a secure database</li>
+        <li>Implement proper error handling</li>
+        <li>Add logging and monitoring</li>
+        <li>Use HTTPS in production</li>
+        <li>Handle token refresh automatically</li>
+      </ul>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <a href="/" class="button">View API Documentation</a>
+      <a href="/api/installations" class="button secondary">View Installations</a>
+    </div>
+
+    <p style="margin-top: 20px; font-size: 14px; color: #718096;">
+      You can safely close this tab. Check your server console for detailed integration logs.
+    </p>
+  </div>
+
+  <script>
+    // Get the current base URL for API calls
+    const API_BASE_URL = window.location.origin;
+    
+    // Helper function to display API responses
+    function displayResponse(elementId, response, isError = false) {
+      const element = document.getElementById(elementId);
+      const responseDiv = document.createElement('div');
+      responseDiv.className = `api-response ${isError ? 'response-error' : 'response-success'}`;
+      responseDiv.textContent = JSON.stringify(response, null, 2);
+      
+      // Clear previous response
+      element.innerHTML = '';
+      element.appendChild(responseDiv);
+    }
+
+    // Helper function to show loading state
+    function showLoading(elementId, buttonId) {
+      const element = document.getElementById(elementId);
+      const button = document.getElementById(buttonId);
+      
+      element.innerHTML = '<div class="loading">Loading...</div>';
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Loading...';
+      }
+    }
+
+    // Helper function to reset button state
+    function resetButton(buttonId, originalText = 'Test API') {
+      const button = document.getElementById(buttonId);
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    // Test installations endpoint
+    async function testInstallations() {
+      try {
+        showLoading('installations-response');
+        
+        const response = await fetch(`${API_BASE_URL}/api/installations`);
+        const data = await response.json();
+        
+        displayResponse('installations-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('installations-response', { error: error.message }, true);
+      }
+    }
+
+    // Test account endpoint
+    async function testAccount(instanceId) {
+      try {
+        showLoading('account-response');
+        
+        const response = await fetch(`${API_BASE_URL}/api/example/account/${instanceId}`);
+        const data = await response.json();
+        
+        displayResponse('account-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('account-response', { error: error.message }, true);
+      }
+    }
+
+    // Test sales channels endpoint
+    async function testSalesChannels(instanceId) {
+      try {
+        showLoading('sales-channels-response');
+        
+        const response = await fetch(`${API_BASE_URL}/api/example/sales-channels/${instanceId}`);
+        const data = await response.json();
+        
+        displayResponse('sales-channels-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('sales-channels-response', { error: error.message }, true);
+      }
+    }
+
+    // Test create gift card endpoint
+    async function testCreateGiftCard(instanceId) {
+      try {
+        showLoading('create-gift-card-response');
+        
+        const requestBody = {
+          code: document.getElementById('gift-card-code').value,
+          initialValue: document.getElementById('gift-card-value').value,
+          currency: document.getElementById('gift-card-currency').value
+        };
+
+        const response = await fetch(`${API_BASE_URL}/api/example/gift-cards/${instanceId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        const data = await response.json();
+        displayResponse('create-gift-card-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('create-gift-card-response', { error: error.message }, true);
+      }
+    }
+
+    // Test search gift cards endpoint
+    async function testSearchGiftCards(instanceId) {
+      try {
+        showLoading('search-gift-cards-response');
+        
+        const email = document.getElementById('search-email').value;
+        const requestBody = email ? { email } : {};
+
+        const response = await fetch(`${API_BASE_URL}/api/example/gift-cards/search/${instanceId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        const data = await response.json();
+        displayResponse('search-gift-cards-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('search-gift-cards-response', { error: error.message }, true);
+      }
+    }
+
+    // Test create wallet endpoint
+    async function testCreateWallet(instanceId) {
+      try {
+        showLoading('create-wallet-response');
+        
+        const requestBody = {
+          firstName: document.getElementById('wallet-first-name').value,
+          lastName: document.getElementById('wallet-last-name').value,
+          email: document.getElementById('wallet-email').value,
+          initialValue: document.getElementById('wallet-initial-value').value
+        };
+
+        const response = await fetch(`${API_BASE_URL}/api/example/wallets/${instanceId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        const data = await response.json();
+        displayResponse('create-wallet-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('create-wallet-response', { error: error.message }, true);
+      }
+    }
+
+    // Test query wallets endpoint
+    async function testQueryWallets(instanceId) {
+      try {
+        showLoading('query-wallets-response');
+        
+        let query = {};
+        const queryText = document.getElementById('wallet-query').value.trim();
+        
+        if (queryText) {
+          try {
+            query = JSON.parse(queryText);
+          } catch (e) {
+            displayResponse('query-wallets-response', { error: 'Invalid JSON in query field' }, true);
+            return;
+          }
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/example/wallets/query/${instanceId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ query })
+        });
+        
+        const data = await response.json();
+        displayResponse('query-wallets-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('query-wallets-response', { error: error.message }, true);
+      }
+    }
+
+    // Test report event endpoint
+    async function testReportEvent(instanceId) {
+      try {
+        showLoading('report-event-response');
+        
+        const triggerKey = document.getElementById('event-trigger-key').value;
+        let payload = {};
+        
+        const payloadText = document.getElementById('event-payload').value.trim();
+        if (payloadText) {
+          try {
+            payload = JSON.parse(payloadText);
+          } catch (e) {
+            displayResponse('report-event-response', { error: 'Invalid JSON in payload field' }, true);
+            return;
+          }
+        }
+
+        const requestBody = {
+          triggerKey,
+          payload
+        };
+
+        const response = await fetch(`${API_BASE_URL}/api/example/workflows/events/${instanceId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        const data = await response.json();
+        displayResponse('report-event-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('report-event-response', { error: error.message }, true);
+      }
+    }
+  </script>
+</body>
+</html>
