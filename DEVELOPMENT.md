@@ -29,13 +29,12 @@ cp .env.example .env
 Edit `.env` with your Rise.ai app credentials:
 
 ```env
-CLIENT_ID=your_actual_client_id
-CLIENT_SECRET=your_actual_client_secret
-REDIRECT_URI=http://localhost:3000/oauth/rise/callback
+  CLIENT_ID=your_actual_client_id
+  CLIENT_SECRET=your_actual_client_secret
+  SERVER_BASE_URL=http://localhost:3000
   RISE_PLATFORM_URL=https://platform.rise.ai
-  INSTALLER_URL=https://platform.rise.ai
-  TOKEN_URL=https://platform.rise.ai/oauth2/token
-PORT=3000
+  CLIENT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----"
+  PORT=3000
 ```
 
 ### 4. Start Development Server

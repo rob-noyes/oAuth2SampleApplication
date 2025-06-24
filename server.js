@@ -44,21 +44,25 @@ app.use('/api', express.json());
 // Load environment variables with validation
 const {
   RISE_PLATFORM_URL,
+  SERVER_BASE_URL,
   CLIENT_ID,
   CLIENT_SECRET,
-  REDIRECT_URI,
-  INSTALLER_URL,
-  TOKEN_URL
+  CLIENT_PUBLIC_KEY
 } = process.env;
+
+// Construct derived URLs from base URLs
+// This keeps .env file clean by avoiding repetitive URL configurations
+const REDIRECT_URI = `${SERVER_BASE_URL}/oauth/rise/callback`;
+const INSTALLER_URL = `${RISE_PLATFORM_URL}/installer`; 
+const TOKEN_URL = `${RISE_PLATFORM_URL}/oauth2/token`;
 
 // Validate required environment variables
 const requiredEnvVars = {
   RISE_PLATFORM_URL,
+  SERVER_BASE_URL,
   CLIENT_ID,
   CLIENT_SECRET,
-  REDIRECT_URI,
-  INSTALLER_URL,
-  TOKEN_URL
+  CLIENT_PUBLIC_KEY
 };
 
 for (const [key, value] of Object.entries(requiredEnvVars)) {
@@ -72,17 +76,9 @@ for (const [key, value] of Object.entries(requiredEnvVars)) {
 // ⚠️  IMPORTANT: In production, use a proper database (PostgreSQL, MongoDB, etc.)
 const riseInstallations = {};
 
-// Rise.ai public key for webhook JWT verification
+// Rise.ai public key for webhook JWT verification (loaded from environment)
 // This public key is provided by Rise.ai and used to verify webhook authenticity
-const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3gRdP/ytsjzz/C9ZDQmH
-yeCJVeobG3Y7GS1MgFzNK780VG/q4z1JuAEHvdFKd9eTIHqLpe15M3DYFJAxNxfB
-fpLJ3rl+pNEdzP46orTMsozUXuRGmU4Pnj71GMIDlZn80rjEE01WTKe/n9ehO3f0
-mP0XZ0+veFhbWxBhmzcy9NXnaViEKEeFcgOImcu45vrvpiI+l750OojDWRGIuxyN
-Gi20lCcpxgGR11SQqmsxQWO9g3iApqMCxd/fEdMO7yGajZmG3aKBkHf7M24xwevH
-Xxizig2MBJN/rbjLK1MATNu2weKNkhxtCA4FUK3piobl5k9N25LgSSWhYT6gIsaZ
-VQIDAQAB
------END PUBLIC KEY-----`;
+const PUBLIC_KEY = CLIENT_PUBLIC_KEY;
 
 // =============================================================================
 // OAUTH FLOW - STEP 1: AUTHORIZATION REQUEST
@@ -697,6 +693,7 @@ app.listen(port, () => {
   console.log(`📖 Visit http://localhost:${port} for API documentation`);
   console.log(`🔧 Configured for Rise.ai Client ID: ${CLIENT_ID}`);
   console.log(`📡 Webhook endpoint: http://localhost:${port}/rise/webhooks`);
-  console.log(`\n📚 To start OAuth flow, visit:`);
-  console.log(`   http://localhost:${port}/oauth/rise/authorize?token=YOUR_INSTALL_TOKEN`);
+  console.log(`\n📚 To start OAuth flow, visit`);
+  console.log(`   https://platform.rise.ai/protected/app-installer/install?appId=${CLIENT_ID}`);
+
 });

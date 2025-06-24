@@ -34,12 +34,24 @@ Create a `.env` file in the root directory:
 # Rise.ai OAuth Configuration
 CLIENT_ID=your_rise_client_id
 CLIENT_SECRET=your_rise_client_secret
-REDIRECT_URI=http://localhost:3000/oauth/rise/callback
+# Automatically constructed: SERVER_BASE_URL + '/oauth/rise/callback'
 
-# Rise.ai API Endpoints
+# Your server base URL (ngrok, domain, or localhost)
+SERVER_BASE_URL=https://your-ngrok-url.ngrok-free.app
+
+# Rise.ai platform URL
 RISE_PLATFORM_URL=https://platform.rise.ai
-INSTALLER_URL=https://platform.rise.ai
-TOKEN_URL=https://platform.rise.ai/oauth2/token
+
+# Rise.ai public key for webhook verification (provided by Rise.ai)
+CLIENT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3gRdP/ytsjzz/C9ZDQmH
+yeCJVeobG3Y7GS1MgFzNK780VG/q4z1JuAEHvdFKd9eTIHqLpe15M3DYFJAxNxfB
+fpLJ3rl+pNEdzP46orTMsozUXuRGmU4Pnj71GMIDlZn80rjEE01WTKe/n9ehO3f0
+mP0XZ0+veFhbWxBhmzcy9NXnaViEKEeFcgOImcu45vrvpiI+l750OojDWRGIuxyN
+Gi20lCcpxgGR11SQqmsxQWO9g3iApqMCxd/fEdMO7yGajZmG3aKBkHf7M24xwevH
+Xxizig2MBJN/rbjLK1MATNu2weKNkhxtCA4FUK3piobl5k9N25LgSSWhYT6gIsaZ
+VQIDAQAB
+-----END PUBLIC KEY-----"
 
 # Application Configuration
 PORT=3000
