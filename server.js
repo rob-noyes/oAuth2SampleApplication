@@ -689,11 +689,11 @@ app.use((error, req, res, next) => {
 // =============================================================================
 
 app.listen(port, () => {
-  console.log(`🚀 Rise.ai OAuth Example running at http://localhost:${port}`);
-  console.log(`📖 Visit http://localhost:${port} for API documentation`);
+  console.log(`🚀 Rise.ai OAuth Example running at ${SERVER_BASE_URL}:${port}`);
+  console.log(`📋 Visit ${SERVER_BASE_URL}:${port} for available endpoints`);
   console.log(`🔧 Configured for Rise.ai Client ID: ${CLIENT_ID}`);
-  console.log(`📡 Webhook endpoint: http://localhost:${port}/rise/webhooks`);
+  console.log(`📡 Webhook endpoint: ${SERVER_BASE_URL}:${port}/rise/webhooks`);
   console.log(`\n📚 To start OAuth flow, visit`);
-  console.log(`   https://platform.rise.ai/protected/app-installer/install?appId=${CLIENT_ID}`);
+  console.log(`   ${RISE_PLATFORM_URL}/protected/app-installer/install?appId=${CLIENT_ID}`);
 
 });
