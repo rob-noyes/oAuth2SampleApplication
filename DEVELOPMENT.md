@@ -105,7 +105,7 @@ curl -X POST http://localhost:3000/api/example/wallets/query/INSTANCE_ID \
 # Report workflow event
 curl -X POST http://localhost:3000/api/example/workflows/events/INSTANCE_ID \
   -H "Content-Type: application/json" \
-  -d '{"triggerKey": "customer_purchase", "payload": {"customerId": "123", "amount": "50.00"}}'
+  -d '{"triggerKey": "testing_installation_flow-test_app_trigger", "payload": {"name": "John", "email": "John@email.com", "amount": "50.00"}}'
    ```
 
 ### Using ngrok for Webhook Testing

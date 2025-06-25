@@ -21,10 +21,13 @@ This is a complete example application demonstrating how to integrate with the R
 ### 1. Clone and Install
 
 ```bash
-git clone <your-repo-url>
-cd hello-world-auth
+# Clone this repository
+git clone https://github.com/your-username/rise-oauth-integration-example.git
+cd rise-oauth-integration-example
 npm install
 ```
+
+*Note: Replace the repository URL above with your actual GitHub repository URL*
 
 ### 2. Get Rise.ai App Credentials
 
@@ -84,10 +87,11 @@ Visit `https://platform.rise.ai/protected/app-installer/install?appId=${CLIENT_I
 ```javascript
 app.get('/oauth/rise/authorize', (req, res) => {
   // Redirect user to Rise.ai authorization server
-  const authUrl = `${INSTALLER_URL}/install?appId=${CLIENT_ID}&redirectUrl=${REDIRECT_URI}&token=${token}`;
+  const authUrl = `${RISE_PLATFORM_URL}/installer/install?appId=${CLIENT_ID}&redirectUrl=${REDIRECT_URI}&token=${token}`;
   res.redirect(authUrl);
 });
 ```
+*Note: INSTALLER_URL is constructed as `${RISE_PLATFORM_URL}/installer`*
 
 ### Step 2: Handle Authorization Callback
 ```javascript
@@ -102,9 +106,9 @@ app.get('/oauth/rise/callback', async (req, res) => {
 ### Step 3: Use Access Tokens
 ```javascript
 // Example API call using stored access token
-const response = await axios.get(`${BASE_URL}/api/customers`, {
+const response = await axios.get(`${RISE_PLATFORM_URL}/v1/rise/accounts`, {
   headers: {
-    'Authorization': `Bearer ${accessToken}`
+    'Authorization': accessToken
   }
 });
 ```
@@ -115,8 +119,8 @@ Rise.ai sends webhooks for important events like app installations and removals:
 
 ```javascript
 app.post('/rise/webhooks', express.text(), (req, res) => {
-  // Verify webhook signature
-  const event = jwt.verify(req.body, PUBLIC_KEY);
+  // Verify webhook signature using CLIENT_PUBLIC_KEY
+  const event = jwt.verify(req.body, CLIENT_PUBLIC_KEY);
   
   // Handle different event types
   switch (event.eventType) {
@@ -126,6 +130,30 @@ app.post('/rise/webhooks', express.text(), (req, res) => {
   }
 });
 ```
+
+## ⚡ Workflow Invocation Handling
+
+Rise.ai can trigger any of your application actions through the invocation endpoint:
+
+```javascript
+app.post('/rise/workflows/actions/v1/invoke', express.text(), (req, res) => {
+  // Verify JWT signature using CLIENT_PUBLIC_KEY
+  const payload = jwt.verify(req.body, CLIENT_PUBLIC_KEY);
+  const { request, metadata } = payload.data;
+
+  // Handle different workflow actions
+  if (request.actionKey === 'rise_test_application-create_giftcard_v1') {
+    // Process gift card creation workflow
+    // Return immediate response, process asynchronously
+  }
+});
+```
+
+**Key Features:**
+- ✅ JWT signature verification for security
+- ✅ Immediate response with background processing
+- ✅ Example gift card creation workflow implementation
+- ✅ Proper error handling and logging
 
 ## 📚 API Examples
 
@@ -146,10 +174,17 @@ This example implements real Rise.ai API endpoints that you can test immediately
 ### **Workflows & Events**
 - ⚡ **POST /api/example/workflows/events/:instanceId** - Report workflow events
 
+### **System Endpoints**
+- 📊 **GET /api/installations** - List all installations and their status
+- 🔄 **POST /rise/workflows/actions/v1/invoke** - Handle workflow invocations from Rise.ai (webhook)
+
 ### **Quick Test Examples**
 
 ```bash
 # Replace {instanceId} with your actual instance ID
+
+# Get installation status
+curl http://localhost:3000/api/installations
 
 # Get account information
 curl http://localhost:3000/api/example/account/{instanceId}
@@ -159,10 +194,20 @@ curl -X POST http://localhost:3000/api/example/gift-cards/{instanceId} \
   -H "Content-Type: application/json" \
   -d '{"code": "WELCOME2024", "initialValue": "25.00", "currency": "USD"}'
 
+# Search gift cards by email
+curl -X POST http://localhost:3000/api/example/gift-cards/search/{instanceId} \
+  -H "Content-Type: application/json" \
+  -d '{"email": "customer@example.com"}'
+
 # Create customer wallet
 curl -X POST http://localhost:3000/api/example/wallets/{instanceId} \
   -H "Content-Type: application/json" \
   -d '{"firstName": "Jane", "lastName": "Smith", "email": "jane@example.com", "initialValue": "50.00"}'
+
+# Query wallets
+curl -X POST http://localhost:3000/api/example/wallets/query/{instanceId} \
+  -H "Content-Type: application/json" \
+  -d '{"query": {}}'
 
 # Report a workflow event
 curl -X POST http://localhost:3000/api/example/workflows/events/{instanceId} \
@@ -170,7 +215,42 @@ curl -X POST http://localhost:3000/api/example/workflows/events/{instanceId} \
   -d '{"triggerKey": "customer_signup", "payload": {"customerId": "new_customer_123"}}'
 ```
 
-**💡 Tip**: After completing OAuth, visit the installation complete page for an interactive testing interface!
+**💡 Tip**: After completing OAuth, you'll be redirected to an installation complete page that provides:
+- ✅ Interactive API testing interface
+- ✅ Your instance ID for testing
+- ✅ Pre-filled curl commands
+- ✅ Live API response preview
+
+## 🔄 Automatic Token Management
+
+The application automatically handles token renewal:
+
+```javascript
+// Tokens are automatically refreshed when expired
+async function getValidAccessToken(instanceId) {
+  const installation = riseInstallations[instanceId];
+  
+  // Check if token is expired and refresh if needed
+  if (installation.expires_at < Date.now()) {
+    // Automatically get new token from Rise.ai
+    const response = await axios.post(TOKEN_URL, {
+      grant_type: 'client_credentials',
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      instance_id: instanceId
+    });
+    
+    // Update stored token
+    riseInstallations[instanceId] = {
+      ...installation,
+      access_token: response.data.access_token,
+      expires_at: Date.now() + (response.data.expires_in * 1000)
+    };
+  }
+  
+  return installation.access_token;
+}
+```
 
 ## 🛡️ Security Best Practices
 
